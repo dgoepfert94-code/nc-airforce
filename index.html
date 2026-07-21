@@ -916,7 +916,11 @@
 
   function setupEditableText(){
     document.querySelectorAll('main, footer').forEach(root => {
-      root.querySelectorAll(EDITABLE_SELECTOR).forEach(el => {    
+      root.querySelectorAll(EDITABLE_SELECTOR).forEach(el => {
+        // verschachtelte Blockelemente (z.B. <ul> in <li>) nicht direkt editierbar machen
+        const hasBlockChild = [...el.children].some(c => EDITABLE_SELECTOR.split(', ').includes(c.tagName.toLowerCase()) || c.tagName === 'UL' || c.tagName === 'OL');
+        if (hasBlockChild) return;
+        el.setAttribute('contenteditable', 'true');
       });
     });
   }
@@ -1127,7 +1131,6 @@
 
   updateLockState();
 </script>
-
 
 
 
