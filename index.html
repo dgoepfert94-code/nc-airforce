@@ -1659,6 +1659,10 @@
   const editSaveBtn = document.getElementById('editSaveBtn');
   const imgUploadInput = document.getElementById('imgUploadInput');
   let activeEditImg = null;
+  // Zählt Bild-Uploads, die gerade zum Worker laufen. Solange > 0, darf nicht
+  // gespeichert werden, sonst könnte die noch nicht hochgeladene Base64-Vorschau
+  // mit ins gespeicherte HTML rutschen und die Datei unnötig aufblähen.
+  let pendingImageUploads = 0;
 
   // Im Bearbeiten-Modus werden alle Text-Elemente editierbar, die nur reinen Text enthalten
   // (keine weiteren HTML-Elemente als Kinder). So werden auch Spans, Divs mit reinem Text
@@ -1771,13 +1775,17 @@
         if (fallback) fallback.remove();
       };
 
+      // Sofort eine Vorschau anzeigen, damit man das gewählte Bild direkt sieht
+      // (unabhängig davon, ob/wie der Upload zum Worker im Hintergrund läuft).
+      applyFallback();
+
       if (!SAVE_WORKER_URL || SAVE_WORKER_URL.includes('DEIN-WORKER-NAME')) {
-        // Worker noch nicht konfiguriert -> Bild wie bisher als Base64 einbetten
-        applyFallback();
+        // Worker noch nicht konfiguriert -> Bild bleibt als Base64 eingebettet
         return;
       }
 
       targetImg.style.opacity = '0.5';
+      pendingImageUploads++;
       const progressWrap = document.createElement('div');
       progressWrap.className = 'img-upload-progress';
       const progressBar = document.createElement('div');
@@ -1814,8 +1822,9 @@
       } catch (err) {
         console.error(err);
         alert('Bild-Upload fehlgeschlagen: ' + err.message + '\nBild wird stattdessen direkt eingebettet (bitte später erneut hochladen).');
-        applyFallback();
+        // Vorschau (Base64) ist bereits gesetzt und bleibt als Fallback stehen.
       } finally {
+        pendingImageUploads--;
         targetImg.style.opacity = '';
         progressWrap.remove();
       }
@@ -1882,6 +1891,30 @@
   // der Statustabelle aufgerufen — exakt derselbe Code, nur mit jeweils eigenem
   // Button für Label/Feedback (label-text-Span falls vorhanden, sonst textContent).
   async function performEditSave(btn){
+    // 1) Solange noch ein Bild-Upload zum Worker läuft, nicht speichern —
+    //    sonst würde die Base64-Vorschau statt des schlanken Server-Pfads
+    //    mit ins HTML eingebettet.
+    if (pendingImageUploads > 0) {
+      alert('Es läuft noch ein Bild-Upload. Bitte kurz warten, bis er abgeschlossen ist, und dann erneut auf Speichern klicken.');
+      return;
+    }
+
+    // 2) Sicherheitsnetz: falls trotzdem irgendwo ein Bild als Base64-Data-URL
+    //    im DOM hängt (z. B. weil ein Upload zuvor fehlgeschlagen ist), vorher
+    //    nachfragen statt die Datei stillschweigend aufzublähen.
+    const embeddedImgs = Array.from(document.querySelectorAll('img[src^="data:"]'));
+    if (embeddedImgs.length > 0) {
+      const namen = embeddedImgs
+        .map(img => img.closest('.id-card')?.querySelector('.id-name')?.textContent.trim() || img.alt || 'unbenanntes Bild')
+        .join(', ');
+      const weiter = confirm(
+        'Folgende Bilder wurden nicht erfolgreich zum Server hochgeladen und würden als große Base64-Daten in die HTML-Datei eingebettet: ' + namen +
+        '\n\nDas bläht die Datei unnötig auf. Bild(er) erneut hochladen, um dies zu vermeiden.' +
+        '\n\nTrotzdem jetzt so speichern?'
+      );
+      if (!weiter) return;
+    }
+
     const html = buildCleanHtml();
     const labelEl = btn.querySelector('.label-text') || btn;
     const originalLabel = labelEl.textContent;
