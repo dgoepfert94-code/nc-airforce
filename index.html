@@ -1813,10 +1813,13 @@
           throw new Error((data && data.error) || 'Unerwartete Antwort vom Server');
         }
 
-        // Bild liegt jetzt als echte Datei im Repo -> nur den relativen Pfad referenzieren,
-        // NICHT die Base64-Daten in die HTML einbetten.
-        targetImg.setAttribute('src', data.path);
-        targetImg.style.display = '';
+        // Bild liegt jetzt als echte Datei im Repo. Der relative Pfad ist aber
+        // erst nach dem GitHub-Pages-Rebuild (~30-60s) tatsächlich erreichbar —
+        // in der aktuellen Session würde er also nur ein kaputtes Bild zeigen.
+        // Deshalb bleibt die Base64-Vorschau sichtbar; den echten Pfad merken
+        // wir uns separat und tragen ihn erst beim Speichern/Export ein
+        // (siehe buildCleanHtml), damit die exportierte HTML-Datei schlank bleibt.
+        targetImg.setAttribute('data-uploaded-src', data.path);
         const fallback = targetImg.parentElement.querySelector('.img-fallback');
         if (fallback) fallback.remove();
       } catch (err) {
@@ -1849,6 +1852,16 @@
     docClone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
     docClone.querySelectorAll('.img-edit-overlay').forEach(ov => ov.remove());
     docClone.querySelectorAll('.img-edit-wrap').forEach(w => w.classList.remove('img-edit-wrap'));
+
+    // Bilder, die erfolgreich hochgeladen wurden, zeigen in der laufenden Session
+    // noch die Base64-Vorschau (siehe imgUploadInput-Handler oben), da der echte
+    // Server-Pfad erst nach dem Rebuild erreichbar ist. Beim Export/Speichern wird
+    // hier jetzt der schlanke, echte Pfad eingetragen statt der Base64-Daten.
+    docClone.querySelectorAll('img[data-uploaded-src]').forEach(img => {
+      img.setAttribute('src', img.getAttribute('data-uploaded-src'));
+      img.removeAttribute('data-uploaded-src');
+    });
+
     docClone.classList.remove('edit-mode');
     const cloneEditBtn = docClone.querySelector('#editToggleBtn');
     if (cloneEditBtn) cloneEditBtn.classList.remove('is-active');
@@ -1902,7 +1915,8 @@
     // 2) Sicherheitsnetz: falls trotzdem irgendwo ein Bild als Base64-Data-URL
     //    im DOM hängt (z. B. weil ein Upload zuvor fehlgeschlagen ist), vorher
     //    nachfragen statt die Datei stillschweigend aufzublähen.
-    const embeddedImgs = Array.from(document.querySelectorAll('img[src^="data:"]'));
+    const embeddedImgs = Array.from(document.querySelectorAll('img[src^="data:"]'))
+      .filter(img => !img.hasAttribute('data-uploaded-src'));
     if (embeddedImgs.length > 0) {
       const namen = embeddedImgs
         .map(img => img.closest('.id-card')?.querySelector('.id-name')?.textContent.trim() || img.alt || 'unbenanntes Bild')
