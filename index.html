@@ -331,6 +331,36 @@
   .stat b{display:block;font-family:var(--font-display);font-size:1.8rem;color:var(--gold-bright);}
   .stat span{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--steel-dim);}
 
+  /* ---- echtes Jet-Hintergrundvideo im Hero ---- */
+  .hero{isolation:isolate;}
+  .hero-jet-video-wrap{
+    position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);
+    overflow:hidden;pointer-events:none;z-index:-2;
+    /* Epischer statischer Himmel-Hintergrund, der sichtbar wird, sobald das
+       Video nach dem einmaligen Durchlauf ausgeblendet ist. */
+    background:
+      radial-gradient(ellipse 70% 55% at 72% 22%, rgba(201,162,39,.16), transparent 62%),
+      radial-gradient(ellipse 50% 40% at 15% 85%, rgba(143,160,179,.08), transparent 70%),
+      linear-gradient(180deg, #0c1119 0%, #0a0e14 45%, #05070a 100%);
+  }
+  .hero-jet-video-wrap video{
+    width:100%;height:100%;object-fit:cover;object-position:center 55%;
+    opacity:1;transition:opacity 1.4s ease;
+  }
+  .hero-jet-video-wrap.video-done video{opacity:0;}
+  .hero-jet-video-wrap::before{
+    content:'';position:absolute;inset:0;background:var(--navy-950);opacity:.42;
+  }
+  .hero-jet-video-wrap::after{
+    content:'';position:absolute;inset:0;
+    background:
+      linear-gradient(100deg, var(--navy-950) 0%, rgba(8,11,16,.88) 26%, rgba(8,11,16,.45) 52%, rgba(8,11,16,.8) 100%),
+      linear-gradient(0deg, var(--navy-950) 0%, transparent 22%, transparent 78%, var(--navy-950) 100%);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .hero-jet-video-wrap video{display:none;}
+  }
+
   section{position:relative;z-index:1;padding:110px 28px;max-width:1200px;margin:0 auto;}
 
   /* ---- corner-bracket card ---- */
@@ -457,6 +487,8 @@
   }
   .modal-overlay.open{display:flex;}
   .modal-overlay:has(.modal-wide){padding:12px;}
+  /* Hintergrundseite darf nicht mitscrollen, solange irgendein Modal offen ist */
+  html.no-scroll, html.no-scroll body{overflow:hidden;height:100%;}
   .modal{
     background:linear-gradient(180deg,var(--navy-800),var(--navy-900) 40%);
     border:1px solid rgba(201,162,39,.35);max-width:520px;width:100%;
@@ -791,9 +823,9 @@
     <div class="nav-right">
       <nav><ul id="navList">
         <li><a href="#ueberblick" class="nav-link">Überblick</a></li>
-        <li><a href="#personal" class="nav-link active">Personal</a></li>
+        <li><a href="#personal" class="nav-link">Personal</a></li>
         <li><a href="#ausbildung" class="nav-link">Ausbildungen</a></li>
-        <li><a href="#luftfahrzeuge" class="nav-link">Luftfahrzeuge</a></li>
+        <li><a href="#luftfahrzeuge" class="nav-link active">Luftfahrzeuge</a></li>
         <li><a href="#wissen" class="nav-link">Wissenswert</a></li>
       </ul></nav>
       <button class="login-btn" id="loginToggleBtn"><span class="dot"></span><span id="loginBtnLabel">Mitarbeiter-Login</span></button>
@@ -807,6 +839,12 @@
 
   <!-- HERO -->
   <div class="hero" id="ueberblick">
+    <div class="hero-jet-video-wrap" aria-hidden="true">
+      <video autoplay muted playsinline preload="metadata" id="heroJetVideo"
+        poster="https://images.pexels.com/videos/18855223/f-16-18855223.jpeg?auto=compress&amp;cs=tinysrgb&amp;h=1080">
+        <source src="https://videos.pexels.com/video-files/18855223/18855223-hd_1920_1080_30fps.mp4" type="video/mp4">
+      </video>
+    </div>
     <div class="hero-badge">
       <svg viewBox="0 0 64 64" fill="none">
         <circle cx="32" cy="32" r="30" stroke="#c9a227" stroke-width="1.2" style="--darkreader-inline-stroke: var(--darkreader-text-c9a227, #dbb848);" data-darkreader-inline-stroke=""></circle>
@@ -960,7 +998,7 @@
         <div class="id-card"><div class="id-photo-wrap"><img class="id-photo" data-fallback-icon="person" alt="Matteo Plumbum" src="static/images/matteo-plumbum-aa6d039e.png"></div><div class="id-body"><div class="id-tag" data-edit-managed="1">AF-12</div><div class="id-name"><span style="color: rgb(92, 108, 126); font-size: 16.8px; --darkreader-inline-color: var(--darkreader-text-5c6c7e, #a39b8f);" data-darkreader-inline-color=""><span style="color: rgb(238, 242, 246); font-size: 16.8px; --darkreader-inline-color: var(--darkreader-text-eef2f6, #d2dee7);" data-edit-managed="1" data-darkreader-inline-color="">Jan</span></span></div><div class="id-role"><span style="font-size: 13.12px;" data-edit-managed="1">Tröte</span></div></div></div>
         <div class="id-card"><div class="id-photo-wrap"><img class="id-photo" data-fallback-icon="person" alt="Tim Schmidt" src="static/images/tim-schmidt-8de403b7.png"></div><div class="id-body"><div class="id-tag" data-edit-managed="1">KK-01</div><div class="id-name"><span style="color: rgb(92, 108, 126); font-size: 16.8px; --darkreader-inline-color: var(--darkreader-text-5c6c7e, #a39b8f);" data-darkreader-inline-color=""><span style="color: rgb(238, 242, 246); font-size: 16.8px; --darkreader-inline-color: var(--darkreader-text-eef2f6, #d2dee7);" data-edit-managed="1" data-darkreader-inline-color="">Takumi Tatzuha</span></span></div><div class="id-role"><span style="font-size: 13.12px;">Troll<br></span></div></div></div>
         <div class="id-card vacant"><div class="id-photo-wrap has-photo"><img class="id-photo" data-fallback-icon="person" alt="n.v." src="static/images/n.v.-f21a3de2.jpg" style=""></div><div class="id-body"><div class="id-tag" data-edit-managed="1">AF-14</div><div class="id-name" data-edit-managed="1">n.v.</div><div class="id-role" data-edit-managed="1">Position offen</div></div></div>
-        <div class="id-card vacant"><div class="id-photo-wrap has-photo"><img class="id-photo" data-fallback-icon="person" alt="n.v." src="static/images/f18-skies-mrytfsfx-5eb90bf5.gif" style=""></div><div class="id-body"><div class="id-tag" data-edit-managed="1">AF-15</div><div class="id-name" data-edit-managed="1">n.v.</div><div class="id-role" data-edit-managed="1">Position offen</div></div></div>
+        <div class="id-card vacant"><div class="id-photo-wrap has-photo"><img class="id-photo" data-fallback-icon="person" alt="n.v." src="static/images/n.v.-fc5b4901.png" style="display: none;"><div class="img-fallback"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="--darkreader-inline-stroke: currentColor;" data-darkreader-inline-stroke=""><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"></path></svg><span data-edit-managed="1">Bild nicht verfügbar</span></div></div><div class="id-body"><div class="id-tag" data-edit-managed="1">AF-15</div><div class="id-name" data-edit-managed="1">n.v.</div><div class="id-role" data-edit-managed="1">Position offen</div></div></div>
         <div class="id-card vacant"><div class="id-photo-wrap has-photo"><img class="id-photo" data-fallback-icon="person" alt="n.v." src="static/images/n.v.-4165bdf3.png" style=""></div><div class="id-body"><div class="id-tag" data-edit-managed="1">AF-16</div><div class="id-name"><font color="#eef2f6">John UWU Sullivan</font></div><div class="id-role" data-edit-managed="1">ein Schatz</div></div></div>
       </div>
     </div>
@@ -2386,6 +2424,59 @@
 })();
 </script>
 
+<script>
+(function(){
+  const heroVideo = document.getElementById('heroJetVideo');
+  const videoWrap = document.querySelector('.hero-jet-video-wrap');
+  if (!heroVideo || !videoWrap) return;
+
+  // Kein loop mehr gesetzt: Das Video spielt einmal komplett durch. Sobald es
+  // endet, wird es sanft ausgeblendet (statt einfach nur auf dem letzten Frame
+  // stehen zu bleiben) — so sind die Jets garantiert nicht mehr zu sehen,
+  // unabhängig davon, was genau im letzten Frame des Clips zu sehen ist.
+  // Darunter bleibt ein ruhiger, stimmungsvoller Himmel-Hintergrund stehen.
+  heroVideo.addEventListener('ended', () => {
+    videoWrap.classList.add('video-done');
+  });
+
+  // Performance: das Video nur abspielen, solange der Hero-Bereich tatsächlich
+  // im Sichtbereich ist. Ist es schon zu Ende gelaufen, wird es beim
+  // Zurückscrollen nicht erneut gestartet.
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (heroVideo.ended) return;
+        if (entry.isIntersecting) {
+          heroVideo.play().catch(() => {});
+        } else {
+          heroVideo.pause();
+        }
+      });
+    }, { threshold: 0.05 });
+    observer.observe(heroVideo);
+  }
+})();
+</script>
+
+<script>
+(function(){
+  // Sobald irgendein Modal (Login, Ausbildungsstatus-Tabelle, Wartungs-Tool,
+  // Dienstblatt, Ausbildungs-Fenster) offen ist, darf die Seite dahinter nicht
+  // mitscrollen. Beobachtet generisch alle .modal-overlay-Elemente, statt jede
+  // einzelne Öffnen/Schließen-Stelle im Code separat anzufassen.
+  const overlays = document.querySelectorAll('.modal-overlay');
+  if (!overlays.length) return;
+
+  function syncScrollLock(){
+    const anyOpen = Array.from(overlays).some(o => o.classList.contains('open'));
+    document.documentElement.classList.toggle('no-scroll', anyOpen);
+  }
+
+  const scrollLockObserver = new MutationObserver(syncScrollLock);
+  overlays.forEach(o => scrollLockObserver.observe(o, { attributes:true, attributeFilter:['class'] }));
+  syncScrollLock();
+})();
+</script>
 
 
 
