@@ -535,8 +535,8 @@
   #trainOverlay .modal-head .train-rank, #toolOverlay .modal-head .train-rank, #sheetOverlay .modal-head .train-rank{font-size:.72rem;margin:0;}
   #trainOverlay .modal-close, #toolOverlay .modal-close, #sheetOverlay .modal-close{width:26px;height:26px;font-size:.8rem;flex:none;}
   #trainOverlay .modal-body, #toolOverlay .modal-body, #sheetOverlay .modal-body{flex:1;min-height:0;overflow-y:auto;padding:10px 16px;display:flex;flex-direction:column;}
-  #trainOverlay .modal-body > div:first-child, #toolOverlay .modal-body > div:first-child{flex:none;margin-bottom:6px !important;}
-  #trainOverlay .modal-body iframe, #toolOverlay .modal-body iframe{flex:1;width:100%;height:auto !important;min-height:0;}
+  #trainOverlay .modal-body > div:first-child:not(.sheet-zoom-viewport), #toolOverlay .modal-body > div:first-child:not(.sheet-zoom-viewport){flex:none;margin-bottom:6px !important;}
+  #trainOverlay .modal-body iframe:not(.sheet-zoom-viewport iframe), #toolOverlay .modal-body iframe:not(.sheet-zoom-viewport iframe){flex:1;width:100%;height:auto !important;min-height:0;}
 
   /* ---- sheet zoom controls ---- */
   .sheet-zoom-controls{
@@ -552,14 +552,25 @@
   }
   .sheet-zoom-controls button:hover{border-color:var(--gold);color:var(--gold-bright);}
   .sheet-zoom-controls button:active{transform:scale(.95);}
-  #sheetZoomLabel{min-width:38px;text-align:center;color:var(--steel);}
+  .zoom-label{min-width:38px;text-align:center;color:var(--steel);}
   #sheetOverlay .modal-body{padding:10px 16px 16px;overflow:hidden;}
   .sheet-zoom-viewport{
     flex:1;min-height:0;width:100%;overflow:auto;border-radius:16px;
   }
   .sheet-zoom-viewport iframe{
-    display:block;transform-origin:0 0;border:1px solid rgba(255,255,255,0.1);border-radius:16px;background:#fff;
+    display:block;width:100%;height:100%;transform-origin:0 0;border:1px solid rgba(255,255,255,0.1);border-radius:16px;background:#fff;
   }
+
+  /* ---- Popup-Button (öffnet Dokument in eigenem Popup-Fenster) ---- */
+  .popup-open-btn{
+    width:30px;height:30px;border-radius:8px;border:1px solid var(--line);cursor:pointer;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.18));
+    color:var(--white);font-size:.9rem;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 -2px 4px rgba(0,0,0,.3) inset,0 2px 5px rgba(0,0,0,.35);
+    transition:.2s;flex:none;text-decoration:none;
+  }
+  .popup-open-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
+  .popup-open-btn:active{transform:scale(.95);}
 
   .train-eyebrow{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;}
   .train-title{font-size:1.4rem;margin-bottom:4px;}
@@ -808,7 +819,7 @@
 
 </style>
 </head>
-<body class="" style="">
+<body>
 <div class="grid-bg"></div>
 
 <header>
@@ -1259,14 +1270,14 @@
       <button class="modal-close" data-close-modal="">✕</button>
     </div>
     <div class="modal-body">
-      <p style="color:var(--steel);font-size:.9rem;">Nur für Ausbilder &amp; Abteilungsleitung der NC Air Force. Nach dem Login können Ausbildungsinhalte unter „Ausbildungen“ geöffnet werden.</p>
+      <p style="color:var(--steel);font-size:.9rem;">Dieser Bereich ist ausschließlich Ausbildern und der Abteilungsleitung der NC Air Force vorbehalten. Nach erfolgreichem Login können Ausbildungsinhalte unter „Ausbildungen“ geöffnet und die Personalübersicht eingesehen werden.</p>
       <label for="loginUser">Dienstnummer</label>
       <input type="text" id="loginUser" placeholder="z. B. AF-03" autocomplete="off">
       <label for="loginPass">Zugangscode</label>
       <input type="password" id="loginPass" placeholder="••••••••" autocomplete="off">
       <div class="modal-error" id="loginError">Ungültige Zugangsdaten. Bitte erneut versuchen.</div>
       <button class="btn" id="loginSubmit">Einloggen</button>
-      <p class="modal-note">Demo-Zugang für dieses Beispiel: Dienstnummer <strong style="color:var(--steel)">beliebig</strong>, Zugangscode <strong style="color:var(--steel)">AF-Ausbilder</strong>. Hinweis: Dieser Login läuft rein clientseitig im Browser und dient nur zur Vorführung — für echten Personenschutz eurer Ausbildungsinhalte braucht ihr ein echtes Backend mit Benutzerverwaltung.</p>
+      <p class="modal-note">Zugangsdaten vergessen oder noch keinen Zugang? Wende dich an deine Abteilungsleitung.</p>
     </div>
   </div>
 </div>
@@ -1281,9 +1292,15 @@
         <div class="train-rank" id="trainRank" data-edit-managed="1">Ab Rang Private</div>
       </div>
       <a id="trainDocLink" href="https://docs.google.com/document/d/1QvqKAOlFogktywUu9JzZhiIU_xCD1iFkkXB7hnSHlgI/edit" target="_blank" rel="noopener" style="display: inline-flex; color: var(--gold-bright); font-size: 0.72rem; letter-spacing: 0.04em; text-decoration: none; border: 1px solid var(--gold); padding: 6px 14px; border-radius: 999px; white-space: nowrap; flex: 0 0 auto; background: linear-gradient(rgba(201, 162, 39, 0.15), rgba(201, 162, 39, 0.02)); box-shadow: rgba(255, 255, 255, 0.08) 0px 1px 0px inset, rgba(0, 0, 0, 0.25) 0px -2px 4px inset, rgba(0, 0, 0, 0.3) 0px 2px 5px;" data-edit-managed="1">In Google Docs öffnen ↗</a>
+      <a id="trainPopupBtn" href="https://docs.google.com/document/d/1QvqKAOlFogktywUu9JzZhiIU_xCD1iFkkXB7hnSHlgI/preview" class="popup-open-btn" title="In Popup-Fenster öffnen" rel="noopener">🗗</a>
+      <div class="sheet-zoom-controls">
+        <button type="button" class="zoom-out-btn" title="Verkleinern">🔍−</button>
+        <span class="zoom-label">100%</span>
+        <button type="button" class="zoom-in-btn" title="Vergrößern">🔍+</button>
+      </div>
       <button class="modal-close" data-close-modal="" data-edit-managed="1">✕</button>
     </div>
-    <div class="modal-body" id="trainBody"><iframe src="https://docs.google.com/document/d/1QvqKAOlFogktywUu9JzZhiIU_xCD1iFkkXB7hnSHlgI/preview" style="width:100%;height:70vh;border:1px solid rgba(255,255,255,0.1);border-radius:16px;background:#fff;" loading="lazy"></iframe></div>
+    <div class="modal-body" id="trainBody"><div class="sheet-zoom-viewport"><iframe src="https://docs.google.com/document/d/1QvqKAOlFogktywUu9JzZhiIU_xCD1iFkkXB7hnSHlgI/preview" style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;background:#fff;" loading="lazy"></iframe></div></div>
   </div>
 </div>
 
@@ -1296,10 +1313,16 @@
         <h3 class="train-title">Wartung</h3>
       </div>
       <a href="https://script.google.com/macros/s/AKfycbzWme6h52LGR1XuFrmdZ4aJxBw5Xzhg6h8Yleud21Xr6orIysLnKySAq0iZjjKMTG1vyg/exec" target="_blank" rel="noopener" style="color:var(--gold-bright);font-size:.72rem;letter-spacing:.04em;text-decoration:none;border:1px solid var(--gold);padding:6px 14px;border-radius:999px;white-space:nowrap;flex:none;background:linear-gradient(180deg,rgba(201,162,39,.15),rgba(201,162,39,.02));box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 -2px 4px rgba(0,0,0,.25) inset,0 2px 5px rgba(0,0,0,.3);">In neuem Tab öffnen ↗</a>
+      <a href="https://script.google.com/macros/s/AKfycbzWme6h52LGR1XuFrmdZ4aJxBw5Xzhg6h8Yleud21Xr6orIysLnKySAq0iZjjKMTG1vyg/exec" class="popup-open-btn" title="In Popup-Fenster öffnen" rel="noopener">🗗</a>
+      <div class="sheet-zoom-controls">
+        <button type="button" class="zoom-out-btn" title="Verkleinern">🔍−</button>
+        <span class="zoom-label">100%</span>
+        <button type="button" class="zoom-in-btn" title="Vergrößern">🔍+</button>
+      </div>
       <button class="modal-close" data-close-modal="">✕</button>
     </div>
     <div class="modal-body">
-      <iframe src="https://script.google.com/macros/s/AKfycbzWme6h52LGR1XuFrmdZ4aJxBw5Xzhg6h8Yleud21Xr6orIysLnKySAq0iZjjKMTG1vyg/exec" style="width:100%;height:100%;border:1px solid rgba(255,255,255,0.1);border-radius:16px;background:#fff;" loading="lazy"></iframe>
+      <div class="sheet-zoom-viewport"><iframe src="https://script.google.com/macros/s/AKfycbzWme6h52LGR1XuFrmdZ4aJxBw5Xzhg6h8Yleud21Xr6orIysLnKySAq0iZjjKMTG1vyg/exec" style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;background:#fff;" loading="lazy"></iframe></div>
     </div>
   </div>
 </div>
@@ -1313,16 +1336,17 @@
         <h3 class="train-title">Tabelle</h3>
       </div>
       <a href="https://docs.google.com/spreadsheets/d/10qPOuAszfhnkZoIGcwXZpTQ3mx3JllUWi2jGWMSdeNw/edit?pli=1&amp;gid=77666261#gid=77666261" target="_blank" rel="noopener" style="color:var(--gold-bright);font-size:.72rem;letter-spacing:.04em;text-decoration:none;border:1px solid var(--gold);padding:6px 14px;border-radius:999px;white-space:nowrap;flex:none;background:linear-gradient(180deg,rgba(201,162,39,.15),rgba(201,162,39,.02));box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 -2px 4px rgba(0,0,0,.25) inset,0 2px 5px rgba(0,0,0,.3);">In neuem Tab öffnen ↗</a>
+      <a href="https://docs.google.com/spreadsheets/d/10qPOuAszfhnkZoIGcwXZpTQ3mx3JllUWi2jGWMSdeNw/edit?pli=1&amp;gid=77666261#gid=77666261" class="popup-open-btn" title="In Popup-Fenster öffnen" rel="noopener">🗗</a>
       <div class="sheet-zoom-controls">
-        <button type="button" id="sheetZoomOut" title="Verkleinern">🔍−</button>
-        <span id="sheetZoomLabel">100%</span>
-        <button type="button" id="sheetZoomIn" title="Vergrößern">🔍+</button>
+        <button type="button" class="zoom-out-btn" title="Verkleinern">🔍−</button>
+        <span class="zoom-label">100%</span>
+        <button type="button" class="zoom-in-btn" title="Vergrößern">🔍+</button>
       </div>
       <button class="modal-close" data-close-modal="">✕</button>
     </div>
     <div class="modal-body">
-      <div class="sheet-zoom-viewport" id="sheetZoomViewport">
-        <iframe id="sheetIframe" src="https://docs.google.com/spreadsheets/d/10qPOuAszfhnkZoIGcwXZpTQ3mx3JllUWi2jGWMSdeNw/edit?usp=sharing&amp;rm=minimal&amp;widget=true&amp;headers=false&amp;gid=77666261" style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; background: rgb(255, 255, 255); width: 1366px; height: 1095.23px; transform: scale(1);" loading="lazy"></iframe>
+      <div class="sheet-zoom-viewport">
+        <iframe src="https://docs.google.com/spreadsheets/d/10qPOuAszfhnkZoIGcwXZpTQ3mx3JllUWi2jGWMSdeNw/edit?usp=sharing&amp;rm=minimal&amp;widget=true&amp;headers=false&amp;gid=77666261" style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; background: rgb(255, 255, 255);" loading="lazy"></iframe>
       </div>
     </div>
   </div>
@@ -1547,16 +1571,16 @@
 </tr>
 <tr class="row-empty" data-dn="AF-16">
 <th>AF-16</th>
-<td class="name-cell" data-field="name">test</td>
-<td class="rang-cell" data-field="rang"><span class="rang-display">First Lieutenant</span><select class="rang-select"><option value="n.V.">n.V.</option><option value="Rekrut">Rekrut</option><option value="Private">Private</option><option value="Private First Class">Private First Class</option><option value="Specialist">Specialist</option><option value="Corporal">Corporal</option><option value="Sergeant">Sergeant</option><option value="Staff Sergeant">Staff Sergeant</option><option value="Sergeant First Class">Sergeant First Class</option><option value="Master Sergeant">Master Sergeant</option><option value="Sergeant Major">Sergeant Major</option><option value="Second Lieutenant">Second Lieutenant</option><option value="First Lieutenant" selected="">First Lieutenant</option><option value="Captain">Captain</option><option value="Major">Major</option></select></td>
+<td class="name-cell" data-field="name">—</td>
+<td class="rang-cell" data-field="rang"><span class="rang-display">n.V.</span><select class="rang-select"><option value="n.V." selected="">n.V.</option><option value="Rekrut">Rekrut</option><option value="Private">Private</option><option value="Private First Class">Private First Class</option><option value="Specialist">Specialist</option><option value="Corporal">Corporal</option><option value="Sergeant">Sergeant</option><option value="Staff Sergeant">Staff Sergeant</option><option value="Sergeant First Class">Sergeant First Class</option><option value="Master Sergeant">Master Sergeant</option><option value="Sergeant Major">Sergeant Major</option><option value="Second Lieutenant">Second Lieutenant</option><option value="First Lieutenant">First Lieutenant</option><option value="Captain">Captain</option><option value="Major">Major</option></select></td>
 <td data-field="einst">—</td>
 <td data-field="bef">—</td>
 <td data-field="ghelm">—</td>
-<td class="qual-cell" data-qual="0" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="1" data-checked="1"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="2" data-checked="1"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="3" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="4" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="5" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="6" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="7" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="8" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="9" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="10" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="11" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="12" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="13" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td>
-<td class="qual-cell" data-qual="reakt" data-checked="1"><span class="chk">✓</span><span class="chk-empty">–</span><span class="chk-x">✕</span></td>
-<td data-field="af"><span class="af-rank-pill af-display lead">Stv. Abteilungsleitung</span><select class="af-select"><option value="n.V.">n.V.</option><option value="Trainee">Trainee</option><option value="Mitglied">Mitglied</option><option value="Trainer">Trainer</option><option value="Ausbilder">Ausbilder</option><option value="Stv. Abteilungsleitung" selected="">Stv. Abteilungsleitung</option><option value="Abteilungsleitung">Abteilungsleitung</option></select></td>
-<td data-field="warn"><span class="warn-pill warn-display alert">1</span><select class="warn-select"><option value="k. W.">k. W.</option><option value="1. W" selected="">1. W</option><option value="2. W">2. W</option><option value="3. W">3. W</option></select></td>
-<td class="note-cell" data-field="note">sadsad</td>
+<td class="qual-cell" data-qual="0" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="1" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="2" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="3" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="4" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="5" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="6" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="7" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="8" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="9" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="10" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="11" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="12" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td><td class="qual-cell" data-qual="13" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span></td>
+<td class="qual-cell" data-qual="reakt" data-checked="0"><span class="chk">✓</span><span class="chk-empty">–</span><span class="chk-x">✕</span></td>
+<td data-field="af"><span class="af-rank-pill af-display">n.V.</span><select class="af-select"><option value="n.V." selected="">n.V.</option><option value="Trainee">Trainee</option><option value="Mitglied">Mitglied</option><option value="Trainer">Trainer</option><option value="Ausbilder">Ausbilder</option><option value="Stv. Abteilungsleitung">Stv. Abteilungsleitung</option><option value="Abteilungsleitung">Abteilungsleitung</option></select></td>
+<td data-field="warn"><span class="warn-pill warn-display">k</span><select class="warn-select"><option value="k. W." selected="">k. W.</option><option value="1. W">1. W</option><option value="2. W">2. W</option><option value="3. W">3. W</option></select></td>
+<td class="note-cell" data-field="note"></td>
 </tr>
 <tr class="row-empty" data-dn="RE-05">
 <th style="color:#c65b52;">RE-05</th>
@@ -1642,7 +1666,17 @@
   const loginSubmit = document.getElementById('loginSubmit');
   const loginError = document.getElementById('loginError');
   const ausbildungHint = document.getElementById('ausbildungHint');
-  const DEMO_CODE = 'AF-Ausbilder';
+  // Der Zugangscode steht nicht mehr als lesbarer Klartext im Quellcode:
+  // Base64-kodiert hinterlegt (wird nur zur Laufzeit decodiert, u.a. für den
+  // X-Save-Secret-Header an den Speicher-Worker) und die Login-Prüfung selbst
+  // vergleicht ausschließlich den SHA-256-Hash der Eingabe.
+  const ACCESS_CODE = atob('ZGh4Yzlh');
+  const ACCESS_CODE_HASH = '810dced0731757c5d595f12462e19338fb79556383bdec371b7443bfe661d520';
+  async function hashText(text){
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
   const statusToggleBtn = document.getElementById('statusToggleBtn');
   const statusOverlay = document.getElementById('statusOverlay');
 
@@ -1662,9 +1696,10 @@
     }
   });
 
-  loginSubmit.addEventListener('click', () => {
+  loginSubmit.addEventListener('click', async () => {
     const pass = document.getElementById('loginPass').value.trim();
-    if (pass === DEMO_CODE) {
+    const enteredHash = await hashText(pass);
+    if (enteredHash === ACCESS_CODE_HASH) {
       isLoggedIn = true;
       loginToggleBtn.classList.add('is-active');
       loginBtnLabel.textContent = 'Eingeloggt';
@@ -1717,7 +1752,7 @@
   // kein Button/Icon/Overlay etc. darin).
   function isEditableContainer(el){
     if (!EDITABLE_TAGS.has(el.tagName)) return false;
-    if (el.closest('nav, .site-header, .edit-toolbar, script, style')) return false;
+    if (el.closest('nav, .site-header, .edit-toolbar, script, style, .sheet-zoom-controls, .popup-open-btn')) return false;
     const txt = el.textContent && el.textContent.trim();
     if (!txt) return false;
     const descendants = el.querySelectorAll('*');
@@ -1851,7 +1886,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Save-Secret': DEMO_CODE
+            'X-Save-Secret': ACCESS_CODE
           },
           body: JSON.stringify({ filename: file.name, contentBase64 })
         });
@@ -1939,6 +1974,18 @@
     // dauerhaft unsichtbar bleibt.
     const cloneVideoWrap = docClone.querySelector('.hero-jet-video-wrap');
     if (cloneVideoWrap) cloneVideoWrap.classList.remove('video-playing', 'video-done');
+
+    // Zoom-Zustand der Doc-Modals (Ausbildung/Wartung/Dienstblatt) immer auf 100%
+    // zurücksetzen. Sonst würde ein beim Speichern gerade aktiver Zoom-Level
+    // (Inline width/height/zoom am iframe, Prozent-Text im Label) dauerhaft mit
+    // ins exportierte HTML übernommen — genau wie zuvor beim Video der Fall.
+    docClone.querySelectorAll('.sheet-zoom-viewport iframe').forEach(ifr => {
+      ifr.style.removeProperty('width');
+      ifr.style.removeProperty('height');
+      ifr.style.removeProperty('zoom');
+      ifr.style.removeProperty('transform');
+    });
+    docClone.querySelectorAll('.zoom-label').forEach(lbl => { lbl.textContent = '100%'; });
     const cloneToolbar = docClone.querySelector('#editToolbar');
     if (cloneToolbar) cloneToolbar.classList.remove('open');
 
@@ -2022,7 +2069,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Save-Secret': DEMO_CODE // gleicher Mitarbeiter-Code wie beim Login
+          'X-Save-Secret': ACCESS_CODE // gleicher Mitarbeiter-Code wie beim Login
         },
         body: JSON.stringify({ html })
       });
@@ -2161,20 +2208,27 @@
       trainRank.textContent = data.rank;
       const docId = DOC_IDS[key];
       const trainDocLink = document.getElementById('trainDocLink');
+      const trainPopupBtn = document.getElementById('trainPopupBtn');
+      const trainZoomControls = trainOverlay.querySelector('.sheet-zoom-controls');
       if (docId) {
         const previewUrl = 'https://docs.google.com/document/d/' + docId + '/preview';
         const openUrl = 'https://docs.google.com/document/d/' + docId + '/edit';
         if (trainDocLink) { trainDocLink.href = openUrl; trainDocLink.style.display = 'inline-flex'; }
+        if (trainPopupBtn) { trainPopupBtn.href = previewUrl; trainPopupBtn.style.display = 'inline-flex'; }
+        if (trainZoomControls) trainZoomControls.style.display = 'flex';
         trainBody.innerHTML =
-          '<iframe src="' + previewUrl + '" style="width:100%;height:70vh;border:1px solid rgba(255,255,255,0.1);border-radius:16px;background:#fff;" loading="lazy"></iframe>';
+          '<div class="sheet-zoom-viewport"><iframe src="' + previewUrl + '" style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;background:#fff;" loading="lazy"></iframe></div>';
       } else {
         if (trainDocLink) trainDocLink.style.display = 'none';
+        if (trainPopupBtn) trainPopupBtn.style.display = 'none';
+        if (trainZoomControls) trainZoomControls.style.display = 'none';
         trainBody.innerHTML =
           '<div class="train-block"><h4>Übersicht</h4><p>' + data.overview + '</p></div>' +
           '<div class="train-block"><h4>Ablauf der Prüfung</h4><ol>' + data.steps.map(s => '<li>' + s + '</li>').join('') + '</ol></div>' +
           '<div class="instructor-note"><b>Hinweis für den Ausbilder</b>' + data.note + '</div>';
       }
       trainOverlay.classList.add('open');
+      if (docId && typeof trainZoom !== 'undefined' && trainZoom) { trainZoom.reset(); requestAnimationFrame(() => trainZoom.apply()); }
       if (editMode && !docId) {
         applyEditableIn(trainOverlay.querySelector('.modal-head'));
         applyEditableIn(trainBody);
@@ -2190,63 +2244,115 @@
     activeTrainKey = null;
     trainOverlay.classList.remove('open');
   }
+  // ---------- generisches Zoom-System (Lupe) für Ausbildungs-, Wartungs- und Dienstblatt-Modal ----------
+  // Ursprünglich nur im Dienstblatt-Modal vorhanden — jetzt als wiederverwendbare
+  // Funktion für alle drei Modals nutzbar, die einen `.sheet-zoom-viewport` mit
+  // darin liegendem iframe sowie `.sheet-zoom-controls` im Modal-Header besitzen.
+  function setupZoomControl(overlayEl, opts){
+    opts = opts || {};
+    const controls = overlayEl.querySelector('.sheet-zoom-controls');
+    if (!controls) return null;
+    const zoomInBtn = controls.querySelector('.zoom-in-btn');
+    const zoomOutBtn = controls.querySelector('.zoom-out-btn');
+    const zoomLabel = controls.querySelector('.zoom-label');
+    const MIN = opts.min || 0.5, MAX = opts.max || 2, STEP = opts.step || 0.1;
+    let zoom = 1;
+    let ro = null;
+    let observedViewport = null;
+
+    // Viewport wird bei jedem Aufruf frisch gesucht, statt einmalig gecacht zu
+    // werden: Das Ausbildungs-Fenster ersetzt seinen .sheet-zoom-viewport bei
+    // jedem Öffnen per innerHTML — ein einmalig gemerkter Verweis würde dann
+    // ins Leere zeigen (altes, aus dem DOM entferntes Element).
+    function getViewport(){ return overlayEl.querySelector('.sheet-zoom-viewport'); }
+
+    function observe(viewport){
+      if (viewport === observedViewport) return;
+      if (ro) ro.disconnect();
+      observedViewport = viewport;
+      ro = new ResizeObserver(() => { if (overlayEl.classList.contains('open')) apply(); });
+      ro.observe(viewport);
+    }
+
+    function apply(){
+      const viewport = getViewport();
+      if (!viewport) return;
+      const iframe = viewport.querySelector('iframe');
+      if (!iframe) return;
+      observe(viewport);
+      const rect = viewport.getBoundingClientRect();
+      const baseW = rect.width || viewport.clientWidth;
+      const baseH = rect.height || viewport.clientHeight;
+      iframe.style.width = (baseW / zoom) + 'px';
+      iframe.style.height = (baseH / zoom) + 'px';
+      iframe.style.transform = '';
+      iframe.style.zoom = zoom;
+      if (zoomLabel) zoomLabel.textContent = Math.round(zoom * 100) + '%';
+    }
+    function reset(){ zoom = 1; }
+
+    if (zoomInBtn) zoomInBtn.addEventListener('click', () => {
+      zoom = Math.min(MAX, +(zoom + STEP).toFixed(2));
+      apply();
+    });
+    if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => {
+      zoom = Math.max(MIN, +(zoom - STEP).toFixed(2));
+      apply();
+    });
+    window.addEventListener('resize', () => { if (overlayEl.classList.contains('open')) apply(); });
+    const initialViewport = getViewport();
+    if (initialViewport) observe(initialViewport);
+
+    return { apply, reset };
+  }
+
   const toolOverlay = document.getElementById('toolOverlay');
   const btnOpenTool = document.getElementById('btnOpenTool');
+  const sheetOverlay = document.getElementById('sheetOverlay');
+  const btnOpenSheet = document.getElementById('btnOpenSheet');
+
+  const trainZoom = setupZoomControl(trainOverlay);
+  const toolZoom = toolOverlay ? setupZoomControl(toolOverlay) : null;
+  const sheetZoomCtrl = sheetOverlay ? setupZoomControl(sheetOverlay) : null;
+
   if (btnOpenTool && toolOverlay) {
     btnOpenTool.addEventListener('click', (e) => {
       e.preventDefault();
       toolOverlay.classList.add('open');
+      if (toolZoom) { toolZoom.reset(); requestAnimationFrame(() => toolZoom.apply()); }
     });
     toolOverlay.addEventListener('click', (e) => { if (e.target === toolOverlay) toolOverlay.classList.remove('open'); });
   }
-  const sheetOverlay = document.getElementById('sheetOverlay');
-  const btnOpenSheet = document.getElementById('btnOpenSheet');
   if (btnOpenSheet && sheetOverlay) {
     btnOpenSheet.addEventListener('click', (e) => {
       e.preventDefault();
       sheetOverlay.classList.add('open');
+      if (sheetZoomCtrl) { sheetZoomCtrl.reset(); requestAnimationFrame(() => sheetZoomCtrl.apply()); }
     });
     sheetOverlay.addEventListener('click', (e) => { if (e.target === sheetOverlay) sheetOverlay.classList.remove('open'); });
   }
 
-  // ---------- sheet zoom controls ----------
-  const sheetIframe = document.getElementById('sheetIframe');
-  const sheetZoomViewport = document.getElementById('sheetZoomViewport');
-  const sheetZoomLabel = document.getElementById('sheetZoomLabel');
-  const sheetZoomInBtn = document.getElementById('sheetZoomIn');
-  const sheetZoomOutBtn = document.getElementById('sheetZoomOut');
-  let sheetZoom = 1;
-  const SHEET_ZOOM_MIN = 0.5;
-  const SHEET_ZOOM_MAX = 2;
-  const SHEET_ZOOM_STEP = 0.1;
-  function applySheetZoom(){
-    if (!sheetIframe || !sheetZoomViewport) return;
-    const rect = sheetZoomViewport.getBoundingClientRect();
-    const baseW = rect.width || sheetZoomViewport.clientWidth;
-    const baseH = (rect.height || sheetZoomViewport.clientHeight);
-    sheetIframe.style.width = (baseW / sheetZoom) + 'px';
-    sheetIframe.style.height = (baseH / sheetZoom) + 'px';
-    sheetIframe.style.transform = '';
-    sheetIframe.style.zoom = sheetZoom;
-    if (sheetZoomLabel) sheetZoomLabel.textContent = Math.round(sheetZoom * 100) + '%';
+  // ---------- Popup-Button: Dokument in eigenem, echtem Popup-Fenster öffnen ----------
+  // (statt nur in einem neuen Tab) — für alle drei Doc-Modals nutzbar.
+  function openDocPopup(url){
+    if (!url) return;
+    const w = Math.round(window.screen.availWidth * 0.85);
+    const h = Math.round(window.screen.availHeight * 0.85);
+    const left = Math.round((window.screen.availWidth - w) / 2);
+    const top = Math.round((window.screen.availHeight - h) / 2);
+    window.open(
+      url,
+      'ncafDocPopup',
+      'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top +
+      ',resizable=yes,scrollbars=yes,status=no,toolbar=no,menubar=no,location=yes'
+    );
   }
-  if (sheetZoomInBtn) sheetZoomInBtn.addEventListener('click', () => {
-    sheetZoom = Math.min(SHEET_ZOOM_MAX, +(sheetZoom + SHEET_ZOOM_STEP).toFixed(2));
-    applySheetZoom();
-  });
-  if (sheetZoomOutBtn) sheetZoomOutBtn.addEventListener('click', () => {
-    sheetZoom = Math.max(SHEET_ZOOM_MIN, +(sheetZoom - SHEET_ZOOM_STEP).toFixed(2));
-    applySheetZoom();
-  });
-  window.addEventListener('resize', () => { if (sheetOverlay && sheetOverlay.classList.contains('open')) applySheetZoom(); });
-  if (sheetOverlay) {
-    const sheetResizeObserver = new ResizeObserver(() => {
-      if (sheetOverlay.classList.contains('open')) applySheetZoom();
+  document.querySelectorAll('.popup-open-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openDocPopup(btn.getAttribute('href'));
     });
-    if (sheetZoomViewport) sheetResizeObserver.observe(sheetZoomViewport);
-  }
-  // initialize sizing once the modal is first opened
-  if (btnOpenSheet) btnOpenSheet.addEventListener('click', () => { requestAnimationFrame(applySheetZoom); });
+  });
 
   document.querySelectorAll('[data-close-modal]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2576,5 +2682,4 @@
 
 
 <div id="detach-button-host" style="top: 0px; left: 832px;"></div><div class="hidden" id="qr-host"></div>
-<div id="detach-button-host" style="top: 0px; left: 832px;"></div><div class="hidden" id="qr-host"></div><div id="detach-button-host" style="top: 0px; left: 832px;"></div><div class="hidden" id="qr-host"></div>
-</body><div id="detach-button-host" style="top: 0px; left: 832px;"></div><div class="hidden" id="qr-host"></div></html>
+<div id="detach-button-host" style="top: 0px; left: 832px;"></div><div class="hidden" id="qr-host"></div></body><div id="detach-button-host" style="top: 0px; left: 832px;"></div><div class="hidden" id="qr-host"></div></html>
