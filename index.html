@@ -841,7 +841,7 @@
 
   <!-- HERO -->
   <div class="hero" id="ueberblick">
-    <div class="hero-jet-video-wrap video-playing video-done" aria-hidden="true">
+    <div class="hero-jet-video-wrap" aria-hidden="true">
       <video autoplay="" muted="" playsinline="" preload="metadata" id="heroJetVideo" poster="https://images.pexels.com/videos/18855223/f-16-18855223.jpeg?auto=compress&amp;cs=tinysrgb&amp;h=1080">
         <source src="https://videos.pexels.com/video-files/18855223/18855223-hd_1920_1080_30fps.mp4" type="video/mp4">
       </video>
@@ -1703,27 +1703,41 @@
   // mit ins gespeicherte HTML rutschen und die Datei unnötig aufblähen.
   let pendingImageUploads = 0;
 
-  // Im Bearbeiten-Modus werden alle Text-Elemente editierbar, die nur reinen Text enthalten
-  // (keine weiteren HTML-Elemente als Kinder). So werden auch Spans, Divs mit reinem Text
-  // (id-name, id-role, id-tag, eyebrow, badge, brand-text, …) sowie Modal-Inhalte erfasst.
-  const EDITABLE_TAGS = new Set(['H1','H2','H3','H4','H5','H6','P','LI','DD','DT','TD','TH','SUMMARY','FIGCAPTION','BLOCKQUOTE','SMALL','LABEL','SPAN','DIV','B','STRONG','EM']);
+  // Im Bearbeiten-Modus werden alle Text-Elemente editierbar, die nur reinen Text bzw.
+  // nur "harmlose" Inline-Elemente enthalten (span/small/strong/b/em/a/i/u/br).
+  // So werden auch Fälle wie <div>NC AIR FORCE<small>Narco City · Army</small></div>,
+  // <p><strong>Rang 2 Private</strong> ist Voraussetzung ...</p> oder Link-Texte
+  // ("Personal ansehen →") vollständig erfasst statt übersprungen.
+  const EDITABLE_TAGS = new Set(['H1','H2','H3','H4','H5','H6','P','LI','DD','DT','TD','TH','SUMMARY','FIGCAPTION','BLOCKQUOTE','SMALL','LABEL','SPAN','DIV','B','STRONG','EM','A','BUTTON','FONT']);
+  const INLINE_SAFE_TAGS = new Set(['SPAN','SMALL','STRONG','B','EM','A','I','U','BR','FONT']);
   const EDITABLE_ROOTS = 'main, footer, #trainOverlay .modal-head, #trainOverlay .modal-body';
 
-  function isEditableLeaf(el){
+  // Ein Element ist editierbar, wenn es selbst ein erlaubtes Tag ist, Text enthält,
+  // und ALLE Nachfahren nur harmlose Inline-Tags sind (kein verschachtelter Block,
+  // kein Button/Icon/Overlay etc. darin).
+  function isEditableContainer(el){
     if (!EDITABLE_TAGS.has(el.tagName)) return false;
     if (el.closest('nav, .site-header, .edit-toolbar, script, style')) return false;
-    if (el.children.length > 0) return false; // nur Blätter mit reinem Text
     const txt = el.textContent && el.textContent.trim();
     if (!txt) return false;
+    const descendants = el.querySelectorAll('*');
+    for (let i = 0; i < descendants.length; i++) {
+      if (!INLINE_SAFE_TAGS.has(descendants[i].tagName)) return false;
+    }
     return true;
   }
 
   function applyEditableIn(root){
     if (!root) return;
+    const skip = new Set();
     root.querySelectorAll('*').forEach(el => {
-      if (isEditableLeaf(el) && el.getAttribute('contenteditable') !== 'true') {
+      if (skip.has(el)) return;
+      if (isEditableContainer(el) && el.getAttribute('contenteditable') !== 'true') {
         el.setAttribute('contenteditable', 'true');
         el.setAttribute('data-edit-managed', '1'); // markiert: von diesem Toggle gesetzt
+        // verschachteltes contenteditable vermeiden: bereits erfasste
+        // Nachfahren nicht zusätzlich markieren
+        el.querySelectorAll('*').forEach(d => skip.add(d));
       }
     });
   }
@@ -1904,6 +1918,13 @@
     docClone.classList.remove('edit-mode');
     const cloneEditBtn = docClone.querySelector('#editToggleBtn');
     if (cloneEditBtn) cloneEditBtn.classList.remove('is-active');
+
+    // Video-Wrapper immer im Ursprungszustand exportieren. Sonst hängt beim
+    // Speichern die zur Laufzeit gesetzte Klasse "video-done" (Video ist bereits
+    // durchgelaufen) mit im HTML, wodurch das Video für alle künftigen Besucher
+    // dauerhaft unsichtbar bleibt.
+    const cloneVideoWrap = docClone.querySelector('.hero-jet-video-wrap');
+    if (cloneVideoWrap) cloneVideoWrap.classList.remove('video-playing', 'video-done');
     const cloneToolbar = docClone.querySelector('#editToolbar');
     if (cloneToolbar) cloneToolbar.classList.remove('open');
 
