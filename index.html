@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" class="no-scroll" style=""><head>
+<html lang="de" class="" style=""><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NC Air Force — Rettender Flügel der NC Army</title>
@@ -808,7 +808,7 @@
 
 </style>
 </head>
-<body class="edit-mode no-scroll" style="top: 0px;">
+<body>
 <div class="grid-bg"></div>
 
 <header>
@@ -1916,6 +1916,20 @@
     });
 
     docClone.classList.remove('edit-mode');
+    const cloneBody = docClone.querySelector('body');
+    if (cloneBody) {
+      // "edit-mode" sitzt am <body>, nicht am <html> — ohne diesen gezielten
+      // Reset blieb die Klasse beim Speichern dauerhaft am Body hängen.
+      cloneBody.classList.remove('edit-mode');
+      // Scroll-Sperre (wird gesetzt, solange irgendein Modal offen ist) immer
+      // zurücksetzen. Sonst bleibt "no-scroll" + der inline gesetzte
+      // "top: -Xpx"-Offset im gespeicherten HTML hängen, falls beim Speichern
+      // gerade ein Modal (z. B. das Management-Blatt) offen war — die Seite
+      // lässt sich nach dem Neuladen dann nicht mehr scrollen.
+      cloneBody.classList.remove('no-scroll');
+      cloneBody.style.top = '';
+    }
+    docClone.classList.remove('no-scroll');
     const cloneEditBtn = docClone.querySelector('#editToggleBtn');
     if (cloneEditBtn) cloneEditBtn.classList.remove('is-active');
 
