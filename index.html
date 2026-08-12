@@ -2,6 +2,9 @@
 <html lang="de" class="" style=""><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>NC Air Force — Rettender Flügel der NC Army</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&amp;family=Barlow:wght@400;500;600&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
@@ -2722,6 +2725,73 @@
   const scrollLockObserver = new MutationObserver(syncScrollLock);
   overlays.forEach(o => scrollLockObserver.observe(o, { attributes:true, attributeFilter:['class'] }));
   syncScrollLock();
+})();
+</script>
+
+<script>
+// Live-Update-Check: fragt regelmaessig eine kleine version.json ab
+// (immer mit cache:'no-store', also garantiert am Browser-/CDN-Cache
+// vorbei) und laedt die Seite automatisch neu, sobald jemand anderes
+// gespeichert hat. So muss niemand manuell den Cache leeren.
+(function(){
+  var VERSION_URL = 'version.json';
+  var CHECK_INTERVAL_MS = 20000; // alle 20s
+  var knownVersion = null;
+  var bannerEl = null;
+
+  function bustedReload(){
+    // Cache-Busting ueber Query-Parameter, damit garantiert eine neue
+    // Netzwerk-Anfrage ausgeloest wird und nicht die alte Seite aus
+    // dem Browser-Cache kommt.
+    var base = window.location.pathname;
+    window.location.href = base + '?_cb=' + Date.now();
+  }
+
+  function showUpdateBanner(){
+    if (bannerEl) return;
+    bannerEl = document.createElement('div');
+    bannerEl.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99999;'
+      + 'background:#c9a227;color:#080b10;padding:12px 16px;font-family:sans-serif;'
+      + 'font-size:14px;text-align:center;box-shadow:0 -2px 8px rgba(0,0,0,.3);';
+    bannerEl.textContent = 'Es gibt eine neuere Version dieser Seite (evtl. eigene Aenderungen zuerst speichern). ';
+    var btn = document.createElement('button');
+    btn.textContent = 'Jetzt neu laden';
+    btn.style.cssText = 'margin-left:10px;padding:6px 14px;cursor:pointer;border:0;border-radius:4px;font-weight:600;';
+    btn.addEventListener('click', bustedReload);
+    bannerEl.appendChild(btn);
+    document.body.appendChild(bannerEl);
+  }
+
+  function checkVersion(){
+    fetch(VERSION_URL + '?_=' + Date.now(), { cache: 'no-store' })
+      .then(function(res){ return res.ok ? res.json() : null; })
+      .then(function(data){
+        if (!data || typeof data.updatedAt === 'undefined') return;
+        if (knownVersion === null){
+          // Erster Check nach Laden der Seite: nur Ausgangswert merken,
+          // nicht sofort neu laden.
+          knownVersion = data.updatedAt;
+          return;
+        }
+        if (data.updatedAt !== knownVersion){
+          knownVersion = data.updatedAt;
+          if (document.body.classList.contains('edit-mode')){
+            // Waehrend jemand gerade selbst bearbeitet: nicht einfach
+            // wegladen, sondern nur dezent hinweisen.
+            showUpdateBanner();
+          } else {
+            bustedReload();
+          }
+        }
+      })
+      .catch(function(){ /* version.json evtl. noch nicht vorhanden -- ignorieren */ });
+  }
+
+  checkVersion();
+  setInterval(checkVersion, CHECK_INTERVAL_MS);
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible') checkVersion();
+  });
 })();
 </script>
 
