@@ -2435,79 +2435,15 @@
 
 <script>
 (function(){
-  function init(){
-    document.querySelectorAll('.photo-upload').forEach(function(wrap){
-      var key = 'photo:' + wrap.getAttribute('data-photo-key');
-      var img = wrap.querySelector('.id-photo');
-      var input = wrap.querySelector('.photo-input');
-      var saved = null;
-      try { saved = localStorage.getItem(key); } catch(e){}
-      if (saved){ img.src = saved; img.classList.remove('hidden'); wrap.classList.add('has-photo'); }
-      input.addEventListener('change', function(e){
-        if (!document.body.classList.contains('edit-mode')) { input.value = ''; return; }
-        var file = e.target.files && e.target.files[0];
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function(ev){
-          var data = ev.target.result;
-          img.src = data;
-          img.classList.remove('hidden');
-          wrap.classList.add('has-photo');
-          try { localStorage.setItem(key, data); } catch(err){ console.warn('Foto konnte nicht gespeichert werden:', err); }
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
-})();
-</script>
-
-
-<script>
-(function(){
-  const STORAGE_KEY = 'ncaf_status_table_v1';
   const table = document.querySelector('table.status-table');
   if(!table) return;
 
-  function loadState(){
-    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); }catch(e){ return {}; }
-  }
-  function saveState(state){
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
-  }
-  function applyState(){
-    const state = loadState();
-    table.querySelectorAll('tbody tr').forEach(tr=>{
-      const dn = tr.getAttribute('data-dn');
-      const row = state[dn]; if(!row) return;
-      Object.entries(row).forEach(([k,v])=>{
-        if(k==='q_reakt'){
-          const cell = tr.querySelector(`td.qual-cell[data-qual="reakt"]`);
-          if(cell) cell.setAttribute('data-checked', String(v));
-        } else if(k.startsWith('q_')){
-          const idx = k.slice(2);
-          const cell = tr.querySelector(`td.qual-cell[data-qual="${idx}"]`);
-          if(cell) cell.setAttribute('data-checked', v?'1':'0');
-        } else if(k==='rang'){
-          const sel = tr.querySelector('select.rang-select'); if(sel){ sel.value=v; tr.querySelector('.rang-display').textContent=v; }
-        } else if(k==='af'){
-          const sel = tr.querySelector('select.af-select'); if(sel){ sel.value=v; const d=tr.querySelector('.af-display'); d.textContent=v; d.className='af-rank-pill af-display'+((/leitung|ausbilder/i).test(v)?' lead':''); }
-        } else if(k==='warn'){
-          const sel = tr.querySelector('select.warn-select'); if(sel){ sel.value=v; const d=tr.querySelector('.warn-display'); d.textContent=(v.indexOf('k')>-1)?'k':v.replace(/[^0-9]/g,'')||v; d.className='warn-pill warn-display'+(v.indexOf('k')>-1?'':' alert'); }
-        } else {
-          const cell = tr.querySelector(`td[data-field="${k}"]`);
-          if(cell && !cell.querySelector('select')) cell.textContent = v;
-        }
-      });
-    });
-  }
-  function updateCell(dn, key, value){
-    const state = loadState();
-    state[dn] = state[dn]||{};
-    state[dn][key] = value;
-    saveState(state);
-  }
+  // Kein localStorage-Cache mehr: die Zellen werden direkt im DOM aktualisiert
+  // (siehe unten), und genau dieser DOM-Stand wird beim Speichern per
+  // buildCleanHtml() ins HTML geschrieben. Dadurch zeigt jeder Aufruf der
+  // Seite garantiert den zuletzt gespeicherten Server-Stand -- kein separater
+  // Browser-Cache kann mehr veraltete Werte darueberlegen.
+  function updateCell(){ /* no-op: DOM ist bereits die Quelle der Wahrheit */ }
 
   // Toggle quals on click (only in edit mode)
   table.addEventListener('click', e=>{
@@ -2570,42 +2506,17 @@
     }
   });
 
-  // Speichern-Button: lokalen Tabellenstand als Sicherheitsnetz aktualisieren
-  // (unabhängig von den einzelnen change/blur-Events), und danach exakt denselben
-  // Speicher-Mechanismus wie im Bearbeiten-Modus auslösen — durch einen echten
-  // Klick auf den Bearbeiten-Modus-Button #editSaveBtn (keine eigene Kopie des Codes).
+  // Speichern-Button: loest exakt denselben Speicher-Mechanismus wie im
+  // Bearbeiten-Modus aus (gemeinsame Funktion performEditSave). Die
+  // Tabellenwerte selbst stehen schon im DOM (durch die change/blur/click-
+  // Handler oben) und werden von buildCleanHtml() direkt daraus gelesen --
+  // kein separates Sammeln/Zwischenspeichern noetig.
   const statusSaveBtn = document.getElementById('statusSaveBtn');
   if (statusSaveBtn) {
     statusSaveBtn.addEventListener('click', () => {
       const active = document.activeElement;
       if (active && table.contains(active) && typeof active.blur === 'function') active.blur();
 
-      const state = {};
-      table.querySelectorAll('tbody tr').forEach(tr => {
-        const dn = tr.getAttribute('data-dn');
-        if (!dn) return;
-        const row = {};
-        textFields.forEach(f => {
-          const c = tr.querySelector(`td[data-field="${f}"]`) || tr.querySelector(`td.${f}-cell`);
-          if (c) row[f] = c.textContent.trim();
-        });
-        const rangSel = tr.querySelector('select.rang-select');
-        if (rangSel) row.rang = rangSel.value;
-        const afSel = tr.querySelector('select.af-select');
-        if (afSel) row.af = afSel.value;
-        const warnSel = tr.querySelector('select.warn-select');
-        if (warnSel) row.warn = warnSel.value;
-        tr.querySelectorAll('td.qual-cell').forEach(cell => {
-          const q = cell.getAttribute('data-qual');
-          const val = cell.getAttribute('data-checked');
-          row['q_' + q] = (q === 'reakt') ? val : (val === '1');
-        });
-        state[dn] = row;
-      });
-      saveState(state);
-
-      // Exakt der gleiche Speicher-Vorgang wie beim globalen "Speichern" im Bearbeiten-Modus
-      // (gemeinsame Funktion performEditSave, kein eigener Code):
       if (typeof performEditSave === 'function') {
         performEditSave(statusSaveBtn);
       } else {
@@ -2617,7 +2528,6 @@
 
   // Table is always interactive, independent of the page's global edit-mode toggle
   setEditable(true);
-  applyState();
 })();
 </script>
 
@@ -2780,6 +2690,9 @@
             // wegladen, sondern nur dezent hinweisen.
             showUpdateBanner();
           } else {
+            // Jemand anderes hat gespeichert: einfach neu laden. Da es keinen
+            // lokalen Cache mehr gibt, zeigt der Reload garantiert den
+            // frischen Server-Stand.
             bustedReload();
           }
         }
