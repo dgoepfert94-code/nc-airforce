@@ -822,6 +822,42 @@
 
 
 </style>
+<style id="status-compact">
+  /* ===== Management-Tabelle: Kopf in eine Zeile, Zeilen kompakter -> alles passt auf den Bildschirm ===== */
+  #statusOverlay .modal.modal-wide{max-height:98vh !important;}
+  #statusOverlay .modal-head{padding:8px 16px 0 !important;align-items:center !important;}
+  #statusOverlay .modal-head > div:first-child{flex:1;min-width:0;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;row-gap:0;}
+  #statusOverlay .modal-head .train-eyebrow{margin:0 !important;font-size:.62rem;}
+  #statusOverlay .modal-head .train-title{font-size:1.05rem !important;margin:0 !important;}
+  #statusOverlay .modal-head .train-rank{font-size:.7rem !important;margin:0 !important;}
+  #statusOverlay .modal-close{width:26px;height:26px;font-size:.8rem;}
+  #statusOverlay .modal-body.status-modal-body{padding:4px 12px 10px !important;}
+  #statusOverlay .status-legend{margin-bottom:4px !important;}
+  #statusOverlay .status-save-btn{padding:5px 14px !important;}
+
+  #statusOverlay .status-table-wrap{padding:0 2px 2px !important;}
+  #statusOverlay table.status-table{border-spacing:0 2px !important;}
+  #statusOverlay table.status-table tbody th,
+  #statusOverlay table.status-table tbody td{padding:1px 5px !important;line-height:1.15;}
+  #statusOverlay table.status-table tbody td.name-cell{padding-left:10px !important;}
+  #statusOverlay table.status-table tbody td[data-field="af"],
+  #statusOverlay table.status-table tbody td[data-field="warn"]{padding:1px 2px !important;}
+  #statusOverlay table.status-table thead th{padding:3px 4px !important;}
+  #statusOverlay table.status-table thead th.qual-head{height:74px !important;padding:3px 1px !important;}
+  #statusOverlay table.status-table select.rang-select,
+  #statusOverlay table.status-table select.af-select,
+  #statusOverlay table.status-table select.warn-select{height:18px !important;padding:0 4px !important;line-height:1;}
+  #statusOverlay table.status-table td.qual-cell .chk,
+  #statusOverlay table.status-table td.qual-cell .chk-empty,
+  #statusOverlay table.status-table td.qual-cell .chk-x{width:15px !important;height:15px !important;font-size:.55rem !important;}
+  #statusOverlay table.status-table select.rang-select{width:124px !important;max-width:124px !important;}
+  #statusOverlay table.status-table select.af-select{width:118px !important;max-width:118px !important;}
+  #statusOverlay table.status-table tbody td.note-cell{min-width:110px !important;}
+  #statusOverlay table.status-table thead th:nth-child(2){min-width:118px !important;}
+  #statusOverlay table.status-table thead th:nth-child(3){min-width:134px !important;}
+  #statusOverlay table.status-table tbody td[data-field="einst"],
+  #statusOverlay table.status-table tbody td[data-field="bef"]{padding:1px 3px !important;}
+</style>
 <style type="text/css"></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style><style></style></head>
 <body class="" style="">
 <div class="grid-bg"></div>
